@@ -1,5 +1,13 @@
+{% load crispy_forms_tags %}   
+
 <div class="container">
   <h1 style="color: blue;">this is a driver page, you can edit your vehicle information here!</h1>
+  <form method="POST">
+		{% csrf_token %}
+		{{ driver_form|crispy }}                    
+		<button class="btn btn-primary" type="submit">Driver Register</button>
+	</form>
+ 
   <sub style="text-align: left;"><a href="{% url 'login' %}" style="text-decoration: none; color: blue; padding:2\
 %; cursor:pointer; margin-right:2%;">logout</a></sub>
   <sub style="text-align: left;"><a href="{% url 'welcome' %}" style="text-decoration: none; color: blue; padding:2\
@@ -7,3 +15,5 @@
   </div>
 
 
+
+<!--Driver Page--> 

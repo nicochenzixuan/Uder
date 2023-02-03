@@ -94,10 +94,20 @@ WSGI_APPLICATION = 'rideapp.wsgi.application'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    #'default': {
+        #'ENGINE': 'django.db.backends.sqlite3',
+        #'NAME': BASE_DIR / 'db.sqlite3',
+    #}
+
+'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'spnjfhgx',
+        'USER': 'spnjfhgx',
+        'PASSWORD': 'K4hxwfHW7IxXYS28mDsE-trEnPEMsBA5',
+        'HOST': 'salt.db.elephantsql.com',
+        'PORT': '5432',
     }
+
 }
 
 

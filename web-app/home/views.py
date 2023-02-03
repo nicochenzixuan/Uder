@@ -7,6 +7,7 @@ from django.contrib.auth import login as auth_login
 
 from django.shortcuts import  render, redirect
 from .forms import NewUserForm
+from .forms import VehicleForm
 
 
 #from django.contrib.auth.forms import AuthenticationForm
@@ -65,43 +66,33 @@ def register(request):
 	  #return render (request=request, template_name="main/register.html", context={"register_form":form})
     return HttpResponse(template.render(context, request))
     
-    '''
-    template = loader.get_template('home/register.html')
-    print("button works?")
-    if request.method == 'POST':
-        print("yes!")
-        username = request.POST['username']
-        password = request.POST['password']
-
-        print("print 0")
-        user = authenticate(request, username=username)
-        if user is None: #can create a new user
-            print ("a new user")
-            user = User.objects.create_user(
-                username = username,
-                password = password,
-                )
-            user.save( )
-
-        else:
-            print("")
-            print("username exists, please enter a different username")
-
-    context = {}
-    return HttpResponse(template.render(context, request))
-    '''
-
 
 def welcome(request):
     template = loader.get_template('home/welcome.html')
-    #return HttpResponse("Welcome to our rideapp.")
     context = {}
-	  #return render (request=request, template_name="main/register.html", context={"register_form":form})
     return HttpResponse(template.render(context, request))
 
 
 def driver(request):
-    template = loader.get_template('home/driver.html')
-    context = {}
+
+    if request.method == "POST":
+        v_form = VehicleForm(request.POST) 
+        print("important: where out") 
+        if v_form.is_valid():
+            print("important: where 0") 
+            v_form.save()
+            print("important: where 1") 
+            messages.success(request, "Driver Registration successful." )
+            
+            print("important: driver register successful!") 
+            return redirect('driver')
+                
+        print("error: register not successful!")       
+        messages.error(request, "Unsuccessful registration. Invalid information.")
+    v_form1 = VehicleForm()
+    template =loader.get_template('home/driver.html')
+    context = {"driver_form":v_form1}
+    #context = {}
+	  #return render (request=request, template_name="main/register.html", context={"register_form":form})
     return HttpResponse(template.render(context, request))
   

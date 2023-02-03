@@ -1,22 +1,17 @@
 from django.db import models
+from django.contrib.auth.models import User
+
 
 # Create your models here.
 
-class Account(models.Model):
-    #question_text = models.CharField(max_length=200)
-    #pub_date = models.DateTimeField('date published')
-    username = models.CharField(max_length=128, unique= True)
-    password = models.CharField(max_length=256)
-    
-    def __str__(self):
-        return self.username
-
 
 class Vehicle(models.Model):
-    driverName = models.CharField(default = "", max_length = 150)
-    carType = models.CharField(default = "sedan", max_length=20)
-    maxCapacity = models.IntegerField(default = 4)
-    licensePlateNumber = models.CharField(default = "", max_length=10)
+    #owner = models.OneToOneField(User,related_name="vehicle")#ForeignKey#on_delete=models.CASCADE,
+    owner = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
+    car_type = models.CharField(default='Car',max_length=50)
+    license_number = models.CharField(default='000',max_length=20)
+    capacity = models.IntegerField(default=4)
+    comment = models.TextField(blank=True, default="")
 
     def __str__(self):
         return self.v_type
