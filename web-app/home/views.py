@@ -3,6 +3,10 @@ from django.template import loader
 from django.contrib.auth import authenticate
 from django.contrib import messages
 from django.contrib.auth import login as auth_login
+from django.contrib.auth.decorators import login_required
+from django.conf import settings
+from django.contrib.auth.models import User
+
 
 from django.shortcuts import  render, redirect
 from .forms import NewUserForm,VehicleForm,UserProfileUpdateForm
@@ -11,6 +15,10 @@ from .models import Vehicle,UserProfile
 
 from django.shortcuts import render,redirect, get_object_or_404
 
+from .forms import RequestForm
+from .models import Ride
+import datetime
+from django.utils import timezone
 
 #from django.contrib.auth.forms import AuthenticationForm
 
@@ -69,12 +77,17 @@ def register(request):
     return HttpResponse(template.render(context, request))
     
 
+
+@login_required
 def welcome(request):
+    if not request.user.is_authenticated:
+        return render(request, 'home/login.html')
     template = loader.get_template('home/welcome.html')
     context = {}
     return HttpResponse(template.render(context, request))
 
 
+@login_required
 def driver(request):
 
     if request.method == "POST":
@@ -154,3 +167,41 @@ def profile(request):
     return HttpResponse(template.render(context, request))
 
 
+
+
+@login_required
+def ride_request(request):
+    ride = Ride()
+    if request.method == "POST":
+        form = RequestForm(request.POST)
+        print("important: where out")
+        if form.is_valid():
+            print("important: where 0")
+            ride.destination = form.cleaned_data['destination']
+            ride.arrival_time = form.cleaned_data['arrival_time']
+            currenttime = timezone.now()
+            if ride.arrival_time < currenttime:
+                messages.warning(request, f'Your time is invalid')
+                return render(request,'home/ride_request.html', {'form':form})
+            print("important: where 1")
+            ride.owner = request.user
+            ride.numberOfPassenger = form.cleaned_data['numberOfPassenger']
+            share = request.POST.get("can_Shared")
+            if share == "no":
+                ride.canShare = False
+            else:
+                ride.canShare = True
+            ride.status = 'open'
+            ride.save()
+#            messages.success(request, "Request sent successful." )
+            print("important: Request sent successful!")
+            return redirect('welcome')
+    else:
+        form = RequestForm()
+        print("error: request sent not successful!")
+        messages.error(request, "Unsuccessful registration. Invalid information.")
+    return render(request, 'home/ride_request.html', {'form':form})
+
+ #   template =loader.get_template('home/ride_request.html')
+  #  context = {"ride_request_form":r_form1} 
+   # return HttpResponse(template.render(context, request)) 

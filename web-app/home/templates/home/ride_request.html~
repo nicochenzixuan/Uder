@@ -1,0 +1,17 @@
+{% load crispy_forms_tags %}
+
+<div class="container">
+  <h1 style="color: blue;">this is a ride request page, you can send your ride request here!</h1>
+  <form method="POST">
+    {% csrf_token %}
+    {{ driver_form|crispy }}
+    <button class="btn btn-primary" type="submit">Request Send</button>
+  </form>
+  <sub style="text-align: left;"><a href="{% url 'login' %}" style="text-decoration: none; color: blue; padding:2\%; cursor:pointer; margin-right:2%;">logout</a></sub>
+  <sub style="text-align: left;"><a href="{% url 'welcome' %}" style="text-decoration: none; color: blue; padding:2\ %; cursor:pointer; margin-right:2%;">back to welcome page</a></sub>
+</div>
+
+
+
+
+<!--Ride Request Page-->               

@@ -4,7 +4,6 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import Vehicle
-from .models import Ride
 
 
 # Create your forms here.
@@ -30,8 +29,6 @@ class NewUserForm(UserCreationForm):
 
 class VehicleForm(forms.ModelForm):
     #owner = models.OneToOneField(User,on_delete=models.CASCADE,related_name="vehicle")#ForeignKey
-    owner=User
-    driver_name = forms.CharField(required=True)
     car_type = forms.CharField(required=True)
     license_number = forms.CharField(required=True)
     capacity = forms.IntegerField(required=True)
@@ -39,7 +36,7 @@ class VehicleForm(forms.ModelForm):
     
     class Meta:
         model = Vehicle 
-        fields = ['owner','driver_name','car_type', 'license_number', 'capacity', 'comment']
+        fields = ['car_type', 'license_number', 'capacity', 'comment']
     
     def save(self, commit=True):
         v = super(VehicleForm, self).save(commit=False)
@@ -52,24 +49,6 @@ class VehicleForm(forms.ModelForm):
         if commit:
             v.save()
         return v
-
-class UserProfileUpdateForm(forms.ModelForm):
-    email = forms.EmailField()
     
-    class Meta:
-        model = User
-        fields = ['username','password','email']
-    
-
-class RequestForm(forms.ModelForm):
-    owner = forms.CharField(required=True)
-    destination = forms.CharField()
-    arrival_time = forms.DateTimeField()
-    numberOfPassenger = forms.IntegerField()
-    canShare = forms.BooleanField(required=True)
-    class Meta:
-        model = Ride
-        fields = ['destination', 'arrival_time', 'numberOfPassenger', 'canShare']
-
-    
+#class RequestForm(forms.ModelForm):
     
