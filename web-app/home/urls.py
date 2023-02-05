@@ -10,5 +10,6 @@ urlpatterns = [
     #path('<str:username>/welcome/', views.welcome, name = 'welcome'),
     path('welcome/driver', views.driver, name = 'driver'),
     #path('<int:question_id>/vote/', views.vote, name='vote'),
+    path('welcome/profile/', views.profile, name = 'profile'),
 ]
 

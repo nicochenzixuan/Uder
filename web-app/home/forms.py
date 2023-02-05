@@ -29,6 +29,8 @@ class NewUserForm(UserCreationForm):
 
 class VehicleForm(forms.ModelForm):
     #owner = models.OneToOneField(User,on_delete=models.CASCADE,related_name="vehicle")#ForeignKey
+    owner=User
+    driver_name = forms.CharField(required=True)
     car_type = forms.CharField(required=True)
     license_number = forms.CharField(required=True)
     capacity = forms.IntegerField(required=True)
@@ -36,7 +38,7 @@ class VehicleForm(forms.ModelForm):
     
     class Meta:
         model = Vehicle 
-        fields = ['car_type', 'license_number', 'capacity', 'comment']
+        fields = ['owner','driver_name','car_type', 'license_number', 'capacity', 'comment']
     
     def save(self, commit=True):
         v = super(VehicleForm, self).save(commit=False)
@@ -49,3 +51,10 @@ class VehicleForm(forms.ModelForm):
         if commit:
             v.save()
         return v
+
+class UserProfileUpdateForm(forms.ModelForm):
+    email = forms.EmailField()
+    
+    class Meta:
+        model = User
+        fields = ['username','password','email']

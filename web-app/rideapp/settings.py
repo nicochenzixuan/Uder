@@ -101,10 +101,10 @@ DATABASES = {
 
 'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'spnjfhgx',
-        'USER': 'spnjfhgx',
-        'PASSWORD': 'K4hxwfHW7IxXYS28mDsE-trEnPEMsBA5',
-        'HOST': 'salt.db.elephantsql.com',
+        'NAME': 'mysite_db',
+        'USER': 'yc541',
+        'PASSWORD': 'cityu123456duke',
+        'HOST': '127.0.0.1',
         'PORT': '5432',
     }
 

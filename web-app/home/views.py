@@ -1,4 +1,3 @@
-
 from django.http import HttpResponse
 from django.template import loader
 from django.contrib.auth import authenticate
@@ -6,8 +5,11 @@ from django.contrib import messages
 from django.contrib.auth import login as auth_login
 
 from django.shortcuts import  render, redirect
-from .forms import NewUserForm
-from .forms import VehicleForm
+from .forms import NewUserForm,VehicleForm,UserProfileUpdateForm
+
+from .models import Vehicle,UserProfile
+
+from django.shortcuts import render,redirect, get_object_or_404
 
 
 #from django.contrib.auth.forms import AuthenticationForm
@@ -79,9 +81,13 @@ def driver(request):
         v_form = VehicleForm(request.POST) 
         print("important: where out") 
         if v_form.is_valid():
-            print("important: where 0") 
+            
+            #userProfile = UserProfile.objects.get(user=request.user)
+            #userProfile.isDriver = 1
+            #userProfile.save()
+            
             v_form.save()
-            print("important: where 1") 
+            
             messages.success(request, "Driver Registration successful." )
             
             print("important: driver register successful!") 
@@ -95,4 +101,56 @@ def driver(request):
     #context = {}
 	  #return render (request=request, template_name="main/register.html", context={"register_form":form})
     return HttpResponse(template.render(context, request))
-  
+
+def profile(request):
+    #userProfile = UserProfile.objects.get(user=request.user)
+    if request.method == 'POST':
+
+        #profileUpdateForm = UserProfileUpdateForm(request.POST)
+        driverUpdateForm = VehicleForm(request.POST)
+        #if(userProfile.isDriver==1):
+        car = Vehicle.objects.get(driver_name=request.user.username)
+        
+    
+        # update profile
+        #print("where 0")
+        print(driverUpdateForm.is_valid())
+        #driverUpdateForm1 = VehicleForm(instance=request.user.vehicle)
+        #print(driverUpdateForm1.is_valid())
+        #if driverUpdateForm.is_valid():
+            #print("where 1")
+            #profileUpdateForm = UserProfileUpdateForm(instance=request.user)
+            
+        car_type = driverUpdateForm.cleaned_data.get('car_type')
+        capacity = driverUpdateForm.cleaned_data.get('capacity')
+            #print("where 2")
+            # exception: negative capacity
+            #if(maxCapacity<=0):
+                #driverUpdateForm = DriverRegisterForm(instance=request.user.car)
+                #context = {'profileUpdateForm':profileUpdateForm,'driverUpdateForm':driverUpdateForm,'prompt':"please select valid capacity!"}
+                #return render(request,'profile.html',context)
+        license_number = driverUpdateForm.cleaned_data.get('license_number')
+        comment = driverUpdateForm.cleaned_data.get('comment')
+        print("before i found it")
+        v=Vehicle.objects.filter(driver_name=request.user.username)
+        print("i found it")
+        v.update(car_type = car_type, capacity = capacity,license_number = license_number,comment=comment)
+            #driverUpdateForm.save()
+            
+        context = {'driverUpdateForm':driverUpdateForm,'prompt':"successfully update car info!"}
+        template =loader.get_template('home/profile.html')
+        return HttpResponse(template.render(context, request))
+
+            #return render(request,'home/profile.html',context)
+    
+    else:
+        #profileUpdateForm = UserProfileUpdateForm(instance=request.user)
+        #driverUpdateForm = VehicleForm()
+        #if(userProfile.isDriver==1):
+        driverUpdateForm = VehicleForm(instance=request.user.vehicle)
+    #context = {'profileUpdateForm':profileUpdateForm,'driverUpdateForm':driverUpdateForm}
+    context = {'driverUpdateForm':driverUpdateForm}
+    template =loader.get_template('home/profile.html')
+    return HttpResponse(template.render(context, request))
+
+
