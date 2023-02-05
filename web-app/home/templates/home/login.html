@@ -1,0 +1,30 @@
+<div class="container">
+    
+    <form method ='POST'>
+      {% csrf_token %}
+        <label for="uname"><b>Username</b></label>
+        <input type="text" placeholder="Enter Username" name="username" required>
+  
+        <label for="psw"><b>Password</b></label>
+        <input type="password" placeholder="Enter Password" name="password" required>
+        <button type="submit">Login</button>
+    </form>
+    
+    {% if messages %}
+        <ul class="messages">
+        {% for message in messages %}
+        <h2 style="color: red;" {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</h2>
+        {% endfor %}
+        </ul>
+    {% endif %}
+    
+    <label>
+      <input type="checkbox" checked="checked" name="remember"> Remember me
+    </label>
+  </div>
+
+  <div class="container" style="background-color:#f1f1f1">
+    <button type="button" class="cancelbtn">Cancel</button>
+    <span class="psw">Forgot <a href="#">password?</a></span>
+  </div>
+  <sub style="text-align: left;"><a href="{% url 'register' %}" style="text-decoration: none; color: blue; padding:2%; cursor:pointer; margin-right:2%;">don't have account,sign up</a></sub>
