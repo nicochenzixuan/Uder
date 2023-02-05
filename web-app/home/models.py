@@ -32,3 +32,4 @@ class Ride(models.Model):
     
     def __str__(self):
         return self.destination
+

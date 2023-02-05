@@ -44,7 +44,6 @@ class VehicleForm(forms.ModelForm):
         
         #v.car_type = self.cleaned_data['car_type']
         #v.license_number = self.cleaned_data['license_number']
-
         #v.capacity = self.cleaned_data['capacity']
         #v.comment = self.cleaned_data['comment']
         

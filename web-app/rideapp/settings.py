@@ -26,12 +26,18 @@ SECRET_KEY = 'django-insecure-s6!%_v*)nq@32l&ia4mczyyqp^((vray+_g6(ui_6@by6-wx1h
 DEBUG = True
 
 #ALLOWED_HOSTS = []
+<<<<<<< HEAD
 ALLOWED_HOSTS = ['vcm-31283.vm.duke.edu','127.0.0.1']
 
 
 LOGIN_URL='home:login'
 LOGIN_REDIRECT_URL = 'home:login'
 
+=======
+ALLOWED_HOSTS = ['vcm-30913.vm.duke.edu','127.0.0.1']
+
+
+>>>>>>> 49a098eb7ef9de9a6c89cc23cdbc1ab813c63785
 # Application definition
 
 """

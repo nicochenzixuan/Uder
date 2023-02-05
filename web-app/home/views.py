@@ -8,9 +8,11 @@ from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django.contrib.auth.models import User
 
+
 from django.shortcuts import  render, redirect
 from .forms import NewUserForm
 from .forms import VehicleForm
+
 from .forms import RequestForm
 from .models import Ride
 import datetime
@@ -72,6 +74,7 @@ def register(request):
 	  #return render (request=request, template_name="main/register.html", context={"register_form":form})
     return HttpResponse(template.render(context, request))
     
+
 
 @login_required
 def welcome(request):
@@ -143,5 +146,3 @@ def ride_request(request):
  #   template =loader.get_template('home/ride_request.html')
   #  context = {"ride_request_form":r_form1} 
    # return HttpResponse(template.render(context, request)) 
-
-
