@@ -1,0 +1,20 @@
+<h2>Welcome:Profile Page {{user.username}}!</h2>
+{{prompt}}
+<form method="post">
+  {% csrf_token %}
+  {{ profileUpdateForm.as_p }}
+  <button type="submit">Update profile</button>
+</form>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ driverUpdateForm.as_p }}
+        <button type="submit">Update my car</button>
+    </form>
+    
+
+    <p>Want to become a driver?</p>
+    <a href="{% url 'driver' %}">register now</a><br>
+
+
+

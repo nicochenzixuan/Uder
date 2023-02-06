@@ -1,0 +1,13 @@
+<h2>Welcome:Edit Request Page {{user.username}}!</h2>
+{{prompt}}
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Update my request</button>
+    </form>
+<a href="{% url 'ride_select' %}">back to ride selection pagee</a><br>
+
+    
+  
+
+
