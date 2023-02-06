@@ -1,8 +1,0 @@
-<div class="container">
-  <h1 style="color: blue;">welcome to our rideapp!</h1>
-  <sub style="text-align: left;"><a href="{% url 'login' %}" style="text-decoration: none; color: blue; padding:2\
-%; cursor:pointer; margin-right:2%;">logout</a></sub>
-  <sub style="text-align: left;"><a href="{% url 'driver' %}" style="text-decoration: none; color: blue; padding:2\ 
-%; cursor:pointer; margin-right:2%;">edit vehicle information or become a driver!(go to driver page)</a></sub>
-  </div>
-

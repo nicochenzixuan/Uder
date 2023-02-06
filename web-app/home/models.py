@@ -23,6 +23,7 @@ class Vehicle(models.Model):
         return self.driver_name
         #return f'{self.owner.username} Vehicle'
 
+
 class Ride(models.Model):
 #    owner = models.CharField(max_length = 50)
 #    owner= models.ForeignKey(User, on_delete=models.CASCADE, related_name='owner')

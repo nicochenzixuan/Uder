@@ -54,11 +54,13 @@ class VehicleForm(forms.ModelForm):
         return v
 
 class UserProfileUpdateForm(forms.ModelForm):
+    username = forms.CharField()
+    #password = forms.CharField(required=True, max_length=20)
     email = forms.EmailField()
     
     class Meta:
         model = User
-        fields = ['username','password','email']
+        fields = ['username','email']
     
 
 class RequestForm(forms.ModelForm):

@@ -1,0 +1,10 @@
+<h2>Welcome:User Profile Page {{user.username}}!</h2>
+
+<form method="post">
+  {% csrf_token %}
+  {{ user_form.as_p }}
+  <button type="submit">Update user profile</button>
+</form>
+
+
+
