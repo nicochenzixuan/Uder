@@ -8,7 +8,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 
 
-from django.shortcuts import  render, redirect
+from django.shortcuts import  render, redirect, get_object_or_404
 from .forms import NewUserForm,VehicleForm,UserProfileUpdateForm
 
 from .models import Vehicle,UserProfile
@@ -123,21 +123,14 @@ def profile(request):
         driverUpdateForm = VehicleForm(request.POST)
         #if(userProfile.isDriver==1):
         car = Vehicle.objects.get(driver_name=request.user.username)
-        
-    
-        # update profile
-        #print("where 0")
         print(driverUpdateForm.is_valid())
         #driverUpdateForm1 = VehicleForm(instance=request.user.vehicle)
         #print(driverUpdateForm1.is_valid())
         #if driverUpdateForm.is_valid():
-            #print("where 1")
             #profileUpdateForm = UserProfileUpdateForm(instance=request.user)
             
         car_type = driverUpdateForm.cleaned_data.get('car_type')
         capacity = driverUpdateForm.cleaned_data.get('capacity')
-            #print("where 2")
-            # exception: negative capacity
             #if(maxCapacity<=0):
                 #driverUpdateForm = DriverRegisterForm(instance=request.user.car)
                 #context = {'profileUpdateForm':profileUpdateForm,'driverUpdateForm':driverUpdateForm,'prompt':"please select valid capacity!"}
@@ -155,7 +148,6 @@ def profile(request):
         return HttpResponse(template.render(context, request))
 
             #return render(request,'home/profile.html',context)
-    
     else:
         #profileUpdateForm = UserProfileUpdateForm(instance=request.user)
         #driverUpdateForm = VehicleForm()
@@ -165,7 +157,6 @@ def profile(request):
     context = {'driverUpdateForm':driverUpdateForm}
     template =loader.get_template('home/profile.html')
     return HttpResponse(template.render(context, request))
-
 
 
 
@@ -205,3 +196,52 @@ def ride_request(request):
  #   template =loader.get_template('home/ride_request.html')
   #  context = {"ride_request_form":r_form1} 
    # return HttpResponse(template.render(context, request)) 
+
+request_id = 0
+@login_required
+def ride_select(request):
+    ride_own = list(Ride.objects.filter(owner=request.user).exclude(status='complete'))
+    
+ #   ride_sharer = list(Ride.objects.filter(sharer = request.user))
+    context = {
+        'ride_own': ride_own
+#        'ride_share' : ride_sharer
+    }
+
+    if request.method == 'POST':
+        request_id = request.POST['request_id']
+        return redirect('edit_request')
+#        return render(request, 'home/ride_select.html', context)
+    
+    return render(request, 'home/ride_select.html', context)
+
+@login_required
+def edit_request(request, request_id):
+    ride = get_object_or_404(Ride, id=request_id)
+    if request.method == 'POST':
+        form = RequestForm(request.POST)
+        print("errors")
+        print(form.errors.as_data())
+        if form.is_valid():
+            if ride.status=='open':
+                destination = form.cleaned_data.get('destination')
+                numberOfPassenger = form.cleaned_data.get('numberOfPassenger')
+                arrival_time= form.cleaned_data.get('arrival_time')
+
+                ride = Ride.objects.filter(id=request_id) 
+                ride.update(destination = destination, numberOfPassenger = numberOfPassenger, arrival_time = arrival_time)
+                context = {'form':form,'prompt':"successfully update request!"}
+                template =loader.get_template('home/edit_request.html')
+                return HttpResponse(template.render(context, request))
+            else:
+                context = {'form':form,'prompt':"the request is not open, you cannot update!"}
+                template =loader.get_template('home/edit_request.html')
+                return HttpResponse(template.render(context, request))
+    else:
+#        ride = Ride.objects.filter(id=request_id)
+        form = RequestForm(instance=ride)#instance.id==request_id)
+    context = {'form':form}
+    template =loader.get_template('home/edit_request.html')
+    return HttpResponse(template.render(context, request))
+
+

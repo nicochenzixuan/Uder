@@ -32,7 +32,7 @@ DEBUG = True
 LOGIN_URL='home:login'
 LOGIN_REDIRECT_URL = 'home:login'
 
-ALLOWED_HOSTS = ['vcm-30913.vm.duke.edu','127.0.0.1']
+ALLOWED_HOSTS = ['vcm-31283.vm.duke.edu','127.0.0.1']
 
 
 # Application definition
@@ -105,14 +105,24 @@ DATABASES = {
         #'NAME': BASE_DIR / 'db.sqlite3',
     #}
 
+#'default': {
+ #       'ENGINE': 'django.db.backends.postgresql',
+  #      'NAME': 'mysite_db',
+   #     'USER': 'yc541',
+    #    'PASSWORD': 'cityu123456duke',
+     #   'HOST': '127.0.0.1',
+      #  'PORT': '5432',
+   # }
+
 'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'mysite_db',
-        'USER': 'yc541',
-        'PASSWORD': 'cityu123456duke',
-        'HOST': '127.0.0.1',
+        'NAME': 'spnjfhgx',
+        'USER': 'spnjfhgx',
+        'PASSWORD': 'K4hxwfHW7IxXYS28mDsE-trEnPEMsBA5',
+        'HOST': 'salt.db.elephantsql.com',
         'PORT': '5432',
     }
+
 
 }
 

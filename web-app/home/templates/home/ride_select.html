@@ -1,0 +1,24 @@
+<h2>Welcome:Ride Selection Page {{user.username}}!</h2>
+{{prompt}}
+<form method="post">
+  {% csrf_token %}
+<!-  {{ profileUpdateForm.as_p }} -->
+</form>
+
+    <form method="post">
+        {% csrf_token %}
+        {% for ride in ride_own %}
+	        <small class="text-muted">Request id: {{ ride.id }}// </small>
+	        <small class="text-muted">{{ ride.destination }} // </small>
+                <small class="text-muted">arrive at {{ ride.arrival_time }} // </small>
+                <small class="text-muted">{{ ride.numberOfPassenger }} Passengers // </small>
+		<small class="text-muted">can share? {{ ride.canShare }} // </small>
+		<small class="text-muted">status is: {{ ride.status }} // </small>
+                <p> if you want to edit this request, click here</p>
+	        <a href="ride_select/edit_request/{{ride.id}}/">Edit Request</a>
+		<br>
+	{% endfor %}
+    </form>
+
+
+    <a href="{% url 'welcome' %}">back to welcome page</a><br>
