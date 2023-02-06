@@ -10,7 +10,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import logout
 
 
-from django.shortcuts import  render, redirect
+from django.shortcuts import  render, redirect, get_object_or_404
 from .forms import NewUserForm,VehicleForm,UserProfileUpdateForm
 
 from .models import Vehicle,UserProfile
@@ -125,7 +125,7 @@ def driver(request):
 
 @login_required
 def update_driver_info(request):
-    userProfile = UserProfile.objects.get(user=request.user)
+   userProfile = UserProfile.objects.get(user=request.user)
     if request.method == 'POST':
 
         profileUpdateForm = UserProfileUpdateForm(request.POST)
@@ -232,7 +232,6 @@ def user_logout(request):
     logout(request)
     return redirect('login')
 
-
 @login_required
 def ride_request(request):
     ride = Ride()
@@ -269,3 +268,52 @@ def ride_request(request):
  #   template =loader.get_template('home/ride_request.html')
   #  context = {"ride_request_form":r_form1} 
    # return HttpResponse(template.render(context, request)) 
+
+request_id = 0
+@login_required
+def ride_select(request):
+    ride_own = list(Ride.objects.filter(owner=request.user).exclude(status='complete'))
+    
+ #   ride_sharer = list(Ride.objects.filter(sharer = request.user))
+    context = {
+        'ride_own': ride_own
+#        'ride_share' : ride_sharer
+    }
+
+    if request.method == 'POST':
+        request_id = request.POST['request_id']
+        return redirect('edit_request')
+#        return render(request, 'home/ride_select.html', context)
+    
+    return render(request, 'home/ride_select.html', context)
+
+@login_required
+def edit_request(request, request_id):
+    ride = get_object_or_404(Ride, id=request_id)
+    if request.method == 'POST':
+        form = RequestForm(request.POST)
+        print("errors")
+        print(form.errors.as_data())
+        if form.is_valid():
+            if ride.status=='open':
+                destination = form.cleaned_data.get('destination')
+                numberOfPassenger = form.cleaned_data.get('numberOfPassenger')
+                arrival_time= form.cleaned_data.get('arrival_time')
+
+                ride = Ride.objects.filter(id=request_id) 
+                ride.update(destination = destination, numberOfPassenger = numberOfPassenger, arrival_time = arrival_time)
+                context = {'form':form,'prompt':"successfully update request!"}
+                template =loader.get_template('home/edit_request.html')
+                return HttpResponse(template.render(context, request))
+            else:
+                context = {'form':form,'prompt':"the request is not open, you cannot update!"}
+                template =loader.get_template('home/edit_request.html')
+                return HttpResponse(template.render(context, request))
+    else:
+#        ride = Ride.objects.filter(id=request_id)
+        form = RequestForm(instance=ride)#instance.id==request_id)
+    context = {'form':form}
+    template =loader.get_template('home/edit_request.html')
+    return HttpResponse(template.render(context, request))
+
+

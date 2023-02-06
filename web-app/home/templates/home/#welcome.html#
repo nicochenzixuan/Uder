@@ -1,0 +1,17 @@
+
+<div class="container">
+  <h1 style="color: blue;">welcome to our rideapp!</h1>
+  <sub style="text-align: left;"><a href="{% url 'login' %}" style="text-decoration: none; color: blue; padding:2\
+%; cursor:pointer; margin-right:2%;">logout</a></sub>
+  <sub style="text-align: left;"><a href="{% url 'driver' %}" style="text-decoration: none; color: blue; padding:2\ 
+								     %; cursor:pointer; margin-right:2%;">edit vehicle information or become a driver!(go to driver page)</a></sub>
+  <sub style="text-align: left;"><a href="{% url 'ride_request' %}" STYLE="TEXT-DECORATION: NONE; COLOR: BLUE; PADDING:2\
+%; CURSOR:POINTER; MARGIN-RIGHT:2%;">start your ride, send a ride request</a></sub>
+
+<sub style="text-align: left;"><a href="{% url 'profile' %}" style="text-decoration: none; color: green; padding:2\ 
+								    %; cursor:pointer; margin-right:2%;">profile page</a></sub>
+<sub style="text-align: left;"><a href="{% url 'ride_select' %}" style="text-decoration: none; color: green; padding:2\                                                                                                                      
+                                                                    %; cursor:pointer; margin-right:2%;">ride selection page</a></sub>
+
+  </div>
+

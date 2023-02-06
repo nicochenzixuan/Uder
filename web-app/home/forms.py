@@ -64,7 +64,7 @@ class UserProfileUpdateForm(forms.ModelForm):
     
 
 class RequestForm(forms.ModelForm):
-    owner = forms.CharField(required=True)
+    owner = User
     destination = forms.CharField()
     arrival_time = forms.DateTimeField()
     numberOfPassenger = forms.IntegerField()

@@ -26,7 +26,7 @@ class Vehicle(models.Model):
 
 class Ride(models.Model):
 #    owner = models.CharField(max_length = 50)
-#    owner= models.ForeignKey(User, on_delete=models.CASCADE, related_name='owner')
+    owner= models.ForeignKey(User, on_delete=models.CASCADE, related_name='owner', null=True)
     destination = models.CharField(max_length = 150)
     arrival_time = models.DateTimeField()
     numberOfPassenger = models.IntegerField(default=4)
