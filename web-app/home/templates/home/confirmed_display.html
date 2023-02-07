@@ -7,8 +7,8 @@
         {% for ride in confirmed_rides %}
 	        <small class="text-muted">Request id: {{ ride.id }}// </small>
           <small class="text-muted">Owner: {{ ride.owner }}// </small>       
-	        <small class="text-muted">Destination: {{ ride.destination }} // </small>
-          <small class="text-muted">arrive at {{ ride.arrival_time }} // </small>
+	        <small class="text-muted">Destination: {{ ride.dest }} // </small>
+          <small class="text-muted">arrive at {{ ride.time_arrive }} // </small>
           <small class="text-muted">{{ ride.numberOfPassenger }} Passengers // </small>
 		      <small class="text-muted">can share? {{ ride.canShare }} // </small>
 		      <small class="text-muted">status is: {{ ride.status }} // </small>

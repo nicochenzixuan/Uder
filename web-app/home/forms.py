@@ -1,15 +1,9 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import Vehicle
-from .models import Ride
+from .models import Vehicle, Ride
 
-
-# Create your forms here.
-
-class NewUserForm(UserCreationForm):
+class UserForm(UserCreationForm):
 
     username = forms.CharField(required=True, max_length=20)
     email = forms.EmailField(required=True)
@@ -22,24 +16,23 @@ class NewUserForm(UserCreationForm):
         fields = ('username', 'email', 'password1', 'password2')
 
     def save(self, commit=True):
-        user = super(NewUserForm, self).save(commit=False)
+        user = super(UserForm, self).save(commit=False)
         user.email = self.cleaned_data['email']
         if commit:
             user.save()
         return user
 
 class VehicleForm(forms.ModelForm):
-    #owner = models.OneToOneField(User,on_delete=models.CASCADE,related_name="vehicle")#ForeignKey
     owner=User
     driver_name = forms.CharField(required=True)
     car_type = forms.CharField(required=True)
     license_number = forms.CharField(required=True)
     capacity = forms.IntegerField(required=True)
-    comment = forms.CharField()
+    description = forms.CharField()
     
     class Meta:
         model = Vehicle 
-        fields = ['owner','driver_name','car_type', 'license_number', 'capacity', 'comment']
+        fields = ['owner','driver_name','car_type', 'license_number', 'capacity', 'description']
     
     def save(self, commit=True):
         v = super(VehicleForm, self).save(commit=False)
@@ -62,22 +55,31 @@ class UserProfileUpdateForm(forms.ModelForm):
         model = User
         fields = ['username','email']
     
-
-class RequestForm(forms.ModelForm):
-    owner = User
-    destination = forms.CharField()
-    arrival_time = forms.DateTimeField()
-    numberOfPassenger = forms.IntegerField()
-    canShare = forms.BooleanField(required=True)
-    class Meta:
-        model = Ride
-        fields = ['destination', 'arrival_time', 'numberOfPassenger', 'canShare']
-        
 class DateTimeInput(forms.DateTimeInput):
     input_type = 'datetime-local'
     
+    
+class RequestForm(forms.ModelForm):
+    owner = User
+    dest = forms.CharField()
+    time_arrive = forms.DateTimeField(
+    input_formats = ['%Y-%m-%dT%H:%M'],
+        widget = DateTimeInput(
+            format='%Y-%m-%dT%H:%M',
+            attrs={'type': 'datetime-local'})
+    
+    
+    )
+    numberOfPassenger = forms.IntegerField()
+    canShare = forms.BooleanField(required=False, initial=True)
+    class Meta:
+        model = Ride
+        fields = ['dest', 'time_arrive', 'numberOfPassenger', 'canShare']
+        
+
+    
 class ShareSearchForm(forms.Form):
-    destination = forms.CharField()
+    dest = forms.CharField()
     earliest_time = forms.DateTimeField(
         input_formats = ['%Y-%m-%dT%H:%M'],
         widget = DateTimeInput(

@@ -1,10 +1,5 @@
 <h2>Welcome:Profile Page {{user.username}}!</h2>
 {{prompt}}
-<form method="post">
-  {% csrf_token %}
-  {{ profileUpdateForm.as_p }}
-  <button type="submit">Update profile</button>
-</form>
 
     <form method="post">
         {% csrf_token %}
@@ -15,6 +10,8 @@
 
     <p>Want to become a driver?</p>
     <a href="{% url 'driver' %}">register now</a><br>
+    
+    <a href="{% url 'welcome' %}">back to welcome page</a><br>
 
 
 

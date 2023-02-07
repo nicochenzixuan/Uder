@@ -3,29 +3,19 @@ from django.template import loader
 from django.contrib.auth import authenticate
 from django.contrib import messages
 from django.contrib.auth import login as auth_login
+from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth import logout
 from django.core.mail import send_mail
-
-
-from django.shortcuts import  render, redirect, get_object_or_404
-from .forms import NewUserForm,VehicleForm,UserProfileUpdateForm
-
-from .models import Vehicle,UserProfile
-
-from django.shortcuts import render,redirect, get_object_or_404
-
-from .forms import RequestForm,ShareSearchForm,DriverSearchForm
-from .models import Ride
+from django.shortcuts import render, redirect, get_object_or_404
+from .forms import UserForm,VehicleForm,UserProfileUpdateForm,RequestForm,ShareSearchForm,DriverSearchForm
+from .models import Vehicle,DriverStatus,Ride
 import datetime
 from django.utils import timezone
-
 from django.db.models import Q
 
-#from django.contrib.auth.forms import AuthenticationForm
 
 
 def index(request):
@@ -42,31 +32,23 @@ def login(request):
             if user is not None:
                 
                 form = auth_login(request,user)
-                #messages.success(request, f' welcome {username} !!')
-                #messages.success(request, 'Successfully Login')
-                return redirect('welcome')#should go to home page
-                #return redirect('home/index.html')
+                return redirect('welcome')
+                
             else:
                 
-                # Return an 'invalid login' error message.
-                #messages.info(request, f'account does not exit plz sign in')
                 messages.info(request, 'Error Login!! Plz try again or register')
-                #return redirect('register')
-                #raise Http404("Question does not exist")
-    #form = AuthenticationForm()
-    #return render(request, './templates/home/login.html')
-    context = {}#context must be dict£¬  A context is a variable name -> variable value mapping that is passed to a template.
+                
+    context = {}
     return HttpResponse(template.render(context, request))
-    #return HttpResponse("This is the login page!")
 
 def register(request):
     if request.method == "POST":
-        user_form = NewUserForm(request.POST) 
+        user_form = UserForm(request.POST) 
         
         if user_form.is_valid():
             user = user_form.save()
             auth_login(request, user)
-            profile = UserProfile(user=user, isDriver=0)
+            profile = DriverStatus(user=user, isDriver=0)
             profile.save()
             messages.success(request, "Registration successful." )
             
@@ -75,7 +57,7 @@ def register(request):
                 
         print("error: register not successful!")       
         messages.error(request, "Unsuccessful registration. Invalid information.")
-    form = NewUserForm()
+    form = UserForm()
     template = loader.get_template('home/register.html')
     context = {"register_form":form}
 	  #return render (request=request, template_name="main/register.html", context={"register_form":form})
@@ -86,10 +68,6 @@ def register(request):
 @login_required
 def welcome(request):
     
-    #print (request.user.userprofile.__dict__)
-    #if not request.user.is_authenticated:
-        #print ("error: not log in")
-        #return render(request, 'home/login.html')
     template = loader.get_template('home/welcome.html')
     context = {}
     return HttpResponse(template.render(context, request))
@@ -97,20 +75,19 @@ def welcome(request):
 
 @login_required
 def driver(request):
-    if(request.user.userprofile.isDriver==1):
-        context = {'prompt':'Every user can only register one car!'}
-        return render(request,'home/welcome.html',context)
+    
     if request.method == "POST":
-        v_form = VehicleForm(request.POST) 
-        if(request.user.userprofile.isDriver==1):
+        
+        f = VehicleForm(request.POST) 
+        if(request.user.driverstatus.isDriver==1):
             return redirect('welcome')
-        if v_form.is_valid():
+        if f.is_valid():
             
-            userProfile = UserProfile.objects.get(user=request.user)
-            userProfile.isDriver = 1
-            userProfile.save()
+            driverstatus = DriverStatus.objects.get(user=request.user)
+            driverstatus.isDriver = 1
+            driverstatus.save()
             
-            v_form.save()
+            f.save()
             
             messages.success(request, "Driver Registration successful." )
             
@@ -119,21 +96,20 @@ def driver(request):
                 
         print("error: register not successful!")       
         messages.error(request, "Unsuccessful registration. Invalid information.")
-    v_form1 = VehicleForm()
+        
+    f = VehicleForm()
     template =loader.get_template('home/driver.html')
-    context = {"driver_form":v_form1}
-    #context = {}
-	  #return render (request=request, template_name="main/register.html", context={"register_form":form})
+    context = {"driver_form":f}
     return HttpResponse(template.render(context, request))
 
 @login_required
 def update_driver_info(request):
-    userProfile = UserProfile.objects.get(user=request.user)
+    driverstatus = DriverStatus.objects.get(user=request.user)
     if request.method == 'POST':
 
         profileUpdateForm = UserProfileUpdateForm(request.POST)
         
-        if(userProfile.isDriver==1):
+        if(driverstatus.isDriver==1):
             #car = Vehicle.objects.get(driver_name=request.user.username)
             driverUpdateForm = VehicleForm(request.POST)
             print("error car yes")
@@ -145,15 +121,13 @@ def update_driver_info(request):
         print(driverUpdateForm.errors.as_data())
         check=driverUpdateForm.is_valid()
         #if driverUpdateForm.is_valid():
-            #profileUpdateForm = UserProfileUpdateForm(instance=request.user)
-        
-        #print(driverUpdateForm.__dict__)
+            
         car_type = driverUpdateForm.cleaned_data.get('car_type')
         capacity = driverUpdateForm.cleaned_data.get('capacity')
         license_number = driverUpdateForm.cleaned_data.get('license_number')
-        comment = driverUpdateForm.cleaned_data.get('comment')
+        description = driverUpdateForm.cleaned_data.get('description')
         v=Vehicle.objects.filter(driver_name=request.user.username)
-        v.update(car_type = car_type, capacity = capacity,license_number = license_number,comment=comment)
+        v.update(car_type = car_type, capacity = capacity,license_number = license_number,description=description)
           
         context = {'driverUpdateForm':driverUpdateForm,'prompt':"successfully update car info!"}
         template =loader.get_template('home/profile.html')
@@ -162,9 +136,8 @@ def update_driver_info(request):
             #return render(request,'home/profile.html',context)
     
     else:
-        #profileUpdateForm = UserProfileUpdateForm(instance=request.user)
-        #driverUpdateForm = VehicleForm()
-        if(userProfile.isDriver==1):
+        
+        if(driverstatus.isDriver==1):
             driverUpdateForm = VehicleForm(instance=request.user.vehicle)
         else:
             context = {'prompt':"Not a Driver!"}
@@ -218,15 +191,13 @@ def update_user_info(request):
     return HttpResponse(template.render(context, request))
 
 @login_required
-def driverCancel(request):
-    context = {'prompt':'You are no longer a driver!'}
-    userProfile = UserProfile.objects.get(user = request.user)
-    if userProfile.isDriver == 1:
-        car = Vehicle.objects.get(driver_name = request.user.username)
-        car.delete()
-        userProfile.isDriver = 0
-        userProfile.save()
-    return render(request,'home/welcome.html',context)
+def delete_driver(request):
+    driverstatus = DriverStatus.objects.get(user = request.user)
+    if driverstatus.isDriver == 1:
+        driverstatus.isDriver = 0
+        driverstatus.save()
+        Vehicle.objects.get(driver_name = request.user.username).delete()
+    return render(request,'home/welcome.html',{'prompt':'Driver status canceled!'})
  
  
 @login_required       
@@ -236,41 +207,40 @@ def user_logout(request):
     return redirect('login')
 
 @login_required
-def ride_request(request):
-    ride = Ride()
+def start_ride(request):
+    r = Ride()
     if request.method == "POST":
         form = RequestForm(request.POST)
-        print("important: where out")
+        
         if form.is_valid():
-            print("important: where 0")
-            ride.destination = form.cleaned_data['destination']
-            ride.arrival_time = form.cleaned_data['arrival_time']
-            currenttime = timezone.now()
-            if ride.arrival_time < currenttime:
-                messages.warning(request, f'Your time is invalid')
-                return render(request,'home/ride_request.html', {'form':form})
-            print("important: where 1")
-            ride.owner = request.user
-            ride.numberOfPassenger = form.cleaned_data['numberOfPassenger']
-            share = request.POST.get("can_Shared")
-            if share == "no":
-                ride.canShare = False
+            print("error")
+            print(r)
+            print(form)
+            
+            r.dest = form.cleaned_data['dest']
+            r.time_arrive = form.cleaned_data['time_arrive']
+            
+            
+            if r.time_arrive < timezone.now():
+                context = {'form':form,'prompt':"Cannot choose time before now!"}
+                return render(request,'home/start_ride.html', context)
+            
+            r.owner = request.user
+            r.numberOfPassenger = form.cleaned_data['numberOfPassenger']
+            share = request.POST.get("canShare")
+            if share == None:
+                r.canShare = False
             else:
-                ride.canShare = True
-            ride.status = 'open'
-            ride.save()
-#            messages.success(request, "Request sent successful." )
-            print("important: Request sent successful!")
+                r.canShare = True
+            r.status = 'open'
+            r.save()
+            
             return redirect('welcome')
     else:
         form = RequestForm()
         print("error: request sent not successful!")
         messages.error(request, "Unsuccessful registration. Invalid information.")
-    return render(request, 'home/ride_request.html', {'form':form})
-
- #   template =loader.get_template('home/ride_request.html')
-  #  context = {"ride_request_form":r_form1} 
-   # return HttpResponse(template.render(context, request)) 
+    return render(request, 'home/start_ride.html', {'form':form})
 
 request_id = 0
 @login_required
@@ -292,19 +262,19 @@ def ride_select(request):
 
 @login_required
 def edit_request(request, request_id):
-    ride = get_object_or_404(Ride, id=request_id)
+    r = get_object_or_404(Ride, id=request_id)
     if request.method == 'POST':
         form = RequestForm(request.POST)
         print("errors")
         print(form.errors.as_data())
         if form.is_valid():
-            if ride.status=='open':
-                destination = form.cleaned_data.get('destination')
+            if r.status=='open':
+                dest = form.cleaned_data.get('dest')
                 numberOfPassenger = form.cleaned_data.get('numberOfPassenger')
-                arrival_time= form.cleaned_data.get('arrival_time')
-
-                ride = Ride.objects.filter(id=request_id) 
-                ride.update(destination = destination, numberOfPassenger = numberOfPassenger, arrival_time = arrival_time)
+                time_arrive= form.cleaned_data.get('time_arrive')
+                canShare= form.cleaned_data.get('canShare')
+                r = Ride.objects.filter(id=request_id) 
+                r.update(dest = dest, numberOfPassenger = numberOfPassenger, time_arrive = time_arrive,canShare=canShare)
                 context = {'form':form,'prompt':"successfully update request!"}
                 template =loader.get_template('home/edit_request.html')
                 return HttpResponse(template.render(context, request))
@@ -313,8 +283,8 @@ def edit_request(request, request_id):
                 template =loader.get_template('home/edit_request.html')
                 return HttpResponse(template.render(context, request))
     else:
-#        ride = Ride.objects.filter(id=request_id)
-        form = RequestForm(instance=ride)#instance.id==request_id)
+
+        form = RequestForm(instance=r)
     context = {'form':form}
     template =loader.get_template('home/edit_request.html')
     return HttpResponse(template.render(context, request))
@@ -322,21 +292,20 @@ def edit_request(request, request_id):
 
 @login_required
 def share_search(request):
-    context = {}
+    #context = {}
     if(request.method == 'POST'):
         form = ShareSearchForm(request.POST)
         
         if form.is_valid():
-            destination = form.cleaned_data['destination']
+            dest = form.cleaned_data['dest']
             early_time =  form.cleaned_data['earliest_time']
             late_time = form.cleaned_data['latest_time']
             numberOfPassenger = form.cleaned_data['numberOfPassenger']
             
             ride = Ride.objects.filter(
-            arrival_time__range=(early_time,late_time), destination = destination, status = 'open')
+            time_arrive__range=(early_time,late_time), dest = dest, status = 'open',canShare = True)
             
-            context['rides']=ride
-            print(ride)
+            #context['rides']=ride
             return render(request, 'home/share_search_display.html', {'rides':ride})
     else :
         form = ShareSearchForm()
@@ -391,8 +360,8 @@ def confirm_request(request, request_id):
     print("yes") 
     print(email_receivers)   
     email_content = 'Hello, Your ride has been confirmed.\n Ride Info:\n'+\
-    'Destination: ' + ride.destination + '\n'+\
-    'Arrival time: ' + str(ride.arrival_time) + '\n'+\
+    'Destination: ' + ride.dest + '\n'+\
+    'Arrival time: ' + str(ride.time_arrive) + '\n'+\
     'Driver Name: ' + request.user.username + '\n'+\
     'Vehicle Type: ' + request.user.vehicle.car_type + '\n'
     
@@ -407,29 +376,14 @@ def complete_ride(request, request_id):
     ride = Ride.objects.filter(pk=request_id)[0]
     ride.status='completed'
     ride.save()
-    #return render(request, 'home/confirmed_display.html')
     return redirect('confirmed_display')
-    #return render(request, 'home/confirmed_display.html')
     
-'''
-@login_required
-def find_confirmed_rides(request):
-    ride = Ride.objects.filter(status = 'confirmed') 
-    context['rides']=ride
-    return render(request, 'home/confirmed_display.html', {'rides':ride})
-
-'''
+    
 @login_required
 def confirmed_display(request):
-    #ride_own = list(Ride.objects.filter(Q(owner=request.user) | Q(sharer_list = request.user)).exclude(status='complete'))
     confirmed_rides=list(Ride.objects.filter(status = 'confirmed') )
-    print("yes")
-    print(confirmed_rides)
- 
-    context = {
-        'confirmed_rides': confirmed_rides
-        
-    }
+
+    context = {'confirmed_rides': confirmed_rides}
 
     if request.method == 'POST':
         request_id = request.POST['request_id']

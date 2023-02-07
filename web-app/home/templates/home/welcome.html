@@ -1,11 +1,12 @@
+{{prompt}}
 <div class="container">
 
 
   <h1 style="color: blue;">welcome!</h1>
   
-  {% if request.user.userprofile.isDriver %}
+  {% if request.user.driverstatus.isDriver %}
   <h1 style="color: blue;">Driver Yes</h1>
-  <p>Don't want to be a driver any more?</p><a href="{% url 'driverCancel' %}">cancel now</a><br>
+  <a href="{% url 'delete_driver' %}">Delete Driver Status</a><br>
   <sub style="text-align: left;"><a href="{% url 'profile' %}" style="text-decoration: none; color: green; padding:2\ 
 %; cursor:pointer; margin-right:2%;">driver profile page</a></sub><br>
 <sub style="text-align: left;"><a href="{% url 'driver_search' %}" style="text-decoration: none; color: purple; padding:2\ 
@@ -28,7 +29,7 @@
    
 
   
-  <sub style="text-align: left;"><a href="{% url 'ride_request' %}" STYLE="TEXT-DECORATION: NONE; COLOR: BLUE; PADDING:2\
+  <sub style="text-align: left;"><a href="{% url 'start_ride' %}" STYLE="TEXT-DECORATION: NONE; COLOR: BLUE; PADDING:2\
 %; CURSOR:POINTER; MARGIN-RIGHT:2%;">start your ride, send a ride request</a></sub>
 
 
