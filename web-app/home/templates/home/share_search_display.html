@@ -1,0 +1,24 @@
+
+    <h2>Share Search Display</h2>
+    {% for ride in rides %}
+        <article class="media content-section">
+            <div class="media-body">
+            <div class="article-metadata">
+                
+                <small class="text-muted">Destination : {{ ride.destination }} //</small>
+                <small class="text-muted">arrive at {{ ride.arrival_time }} // </small>
+                <small class="text-muted">{{ ride.numberOfPassenger }} Passengers // </small>
+                
+            </div>
+            
+            
+            {% if ride.status == 'open' %}
+                <h2><a class="article-title" href="{% url 'join_ride' ride.id %}">Join Ride</a></h2>
+            {% endif %}
+            
+            </div>
+        </article>
+    {% endfor %}
+
+
+	

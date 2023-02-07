@@ -1,0 +1,26 @@
+
+<h2>Driver Page: Confirmed Display</h2>
+{{prompt}}
+
+    <form method="post">
+        {% csrf_token %}
+        {% for ride in confirmed_rides %}
+	        <small class="text-muted">Request id: {{ ride.id }}// </small>
+          <small class="text-muted">Owner: {{ ride.owner }}// </small>       
+	        <small class="text-muted">Destination: {{ ride.destination }} // </small>
+          <small class="text-muted">arrive at {{ ride.arrival_time }} // </small>
+          <small class="text-muted">{{ ride.numberOfPassenger }} Passengers // </small>
+		      <small class="text-muted">can share? {{ ride.canShare }} // </small>
+		      <small class="text-muted">status is: {{ ride.status }} // </small>
+          
+          <h2><a class="article-title" href="{% url 'complete_ride' ride.id %}">Complete</a></h2>
+		<br>
+	{% endfor %}
+    </form>
+
+
+    <a href="{% url 'welcome' %}">back to welcome page</a><br>
+
+	
+
+	

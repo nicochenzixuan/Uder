@@ -8,6 +8,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import logout
+from django.core.mail import send_mail
 
 
 from django.shortcuts import  render, redirect, get_object_or_404
@@ -17,10 +18,12 @@ from .models import Vehicle,UserProfile
 
 from django.shortcuts import render,redirect, get_object_or_404
 
-from .forms import RequestForm
+from .forms import RequestForm,ShareSearchForm,DriverSearchForm
 from .models import Ride
 import datetime
 from django.utils import timezone
+
+from django.db.models import Q
 
 #from django.contrib.auth.forms import AuthenticationForm
 
@@ -125,7 +128,7 @@ def driver(request):
 
 @login_required
 def update_driver_info(request):
-   userProfile = UserProfile.objects.get(user=request.user)
+    userProfile = UserProfile.objects.get(user=request.user)
     if request.method == 'POST':
 
         profileUpdateForm = UserProfileUpdateForm(request.POST)
@@ -184,22 +187,22 @@ def update_user_info(request):
         print("errors")
         print(user_form.errors.as_data())
         check=user_form.is_valid()
-        #if driverUpdateForm.is_valid():
-            #profileUpdateForm = UserProfileUpdateForm(instance=request.user)
-        print("error 0")
-        username_= user_form.cleaned_data['username']
-        print("error 1")
-        email_= user_form.cleaned_data['email']
-        #password_= user_form.cleaned_data['password']
-        print("error 2")
-        #check_encrypted_password(pwd_old, user.password):
-        #user.password = encrypt_password(pwd_new)
+        print(user_form.is_valid())
+        if user_form.is_valid():
+            
+            username_= user_form.cleaned_data['username']
+            
+            email_= user_form.cleaned_data['email']
+            #password_= user_form.cleaned_data['password']
+            
+            #check_encrypted_password(pwd_old, user.password):
+            #user.password = encrypt_password(pwd_new)
         
        
-        u=User.objects.filter(username=request.user.username)
-        u.update(username=username_, email = email_)#, password=password_
-        v=Vehicle.objects.filter(driver_name=request.user.username)
-        v.update(driver_name=username_)
+            u=User.objects.filter(username=request.user.username)
+            u.update(username=username_, email = email_)#, password=password_
+            v=Vehicle.objects.filter(driver_name=request.user.username)
+            v.update(driver_name=username_)
           
         context = {'user_form':user_form,'prompt':"successfully update user info!"}
         template =loader.get_template('home/user_profile.html')
@@ -272,7 +275,7 @@ def ride_request(request):
 request_id = 0
 @login_required
 def ride_select(request):
-    ride_own = list(Ride.objects.filter(owner=request.user).exclude(status='complete'))
+    ride_own = list(Ride.objects.filter(Q(owner=request.user) | Q(sharer_list = request.user)).exclude(status='complete'))
     
  #   ride_sharer = list(Ride.objects.filter(sharer = request.user))
     context = {
@@ -315,5 +318,124 @@ def edit_request(request, request_id):
     context = {'form':form}
     template =loader.get_template('home/edit_request.html')
     return HttpResponse(template.render(context, request))
+
+
+@login_required
+def share_search(request):
+    context = {}
+    if(request.method == 'POST'):
+        form = ShareSearchForm(request.POST)
+        
+        if form.is_valid():
+            destination = form.cleaned_data['destination']
+            early_time =  form.cleaned_data['earliest_time']
+            late_time = form.cleaned_data['latest_time']
+            numberOfPassenger = form.cleaned_data['numberOfPassenger']
+            
+            ride = Ride.objects.filter(
+            arrival_time__range=(early_time,late_time), destination = destination, status = 'open')
+            
+            context['rides']=ride
+            print(ride)
+            return render(request, 'home/share_search_display.html', {'rides':ride})
+    else :
+        form = ShareSearchForm()
+        return render(request, 'home/share_search.html', {'form':form})
+        
+@login_required
+def driver_search(request):
+    context = {}
+    if(request.method == 'POST'):
+        form = DriverSearchForm(request.POST)
+        
+        if form.is_valid():
+            vehicle_capacity = form.cleaned_data['vehicle_capacity']
+            
+            if vehicle_capacity > request.user.vehicle.capacity:
+                context = {'form':form,'prompt':"Larger than your car capacity!!!!!"}
+                #messages.info(request, f'Larger than your car capacity!!!!!')
+                template =loader.get_template('home/driver_search.html')
+                
+                return HttpResponse(template.render(context, request))
+            ride = Ride.objects.filter(status = 'open',numberOfPassenger__lt=vehicle_capacity)#passenger_number__lte=request.user.vehicle.capacity
+            
+            context['rides']=ride
+            print(ride)
+            return render(request, 'home/driver_search_display.html', {'rides':ride})
+    else :
+        form = DriverSearchForm()
+        return render(request, 'home/driver_search.html', {'form':form})
+        
+@login_required
+def join_ride(request, request_id):
+    ride = Ride.objects.filter(pk=request_id)[0]# need to get the first ele because this is a query set
+    ride.sharer_list.add(request.user)
+    #need update ride passen num
+    #ride.numberOfPassenger=ride.numberOfPassenger+
+    ride.save()
+    return redirect('welcome')
+
+@login_required
+def confirm_request(request, request_id):
+    ride = Ride.objects.filter(pk=request_id)[0]
+    ride.status='confirmed'
+    #bond driver ride together
+    ride.driver=request.user
+    ride.save()
+    
+    #send email
+    email_receivers=[]
+    email_receivers.append(ride.owner.email)
+    for sharer in ride.sharer_list.all():
+        email_receivers.append(sharer.email)
+    print("yes") 
+    print(email_receivers)   
+    email_content = 'Hello, Your ride has been confirmed.\n Ride Info:\n'+\
+    'Destination: ' + ride.destination + '\n'+\
+    'Arrival time: ' + str(ride.arrival_time) + '\n'+\
+    'Driver Name: ' + request.user.username + '\n'+\
+    'Vehicle Type: ' + request.user.vehicle.car_type + '\n'
+    
+    email_sender='1095863872@qq.com'
+
+    send_mail("Ride Confirmed", email_content, email_sender, email_receivers)
+    return redirect('driver_search')
+
+
+@login_required
+def complete_ride(request, request_id):
+    ride = Ride.objects.filter(pk=request_id)[0]
+    ride.status='completed'
+    ride.save()
+    #return render(request, 'home/confirmed_display.html')
+    return redirect('confirmed_display')
+    #return render(request, 'home/confirmed_display.html')
+    
+'''
+@login_required
+def find_confirmed_rides(request):
+    ride = Ride.objects.filter(status = 'confirmed') 
+    context['rides']=ride
+    return render(request, 'home/confirmed_display.html', {'rides':ride})
+
+'''
+@login_required
+def confirmed_display(request):
+    #ride_own = list(Ride.objects.filter(Q(owner=request.user) | Q(sharer_list = request.user)).exclude(status='complete'))
+    confirmed_rides=list(Ride.objects.filter(status = 'confirmed') )
+    print("yes")
+    print(confirmed_rides)
+ 
+    context = {
+        'confirmed_rides': confirmed_rides
+        
+    }
+
+    if request.method == 'POST':
+        request_id = request.POST['request_id']
+        return redirect('welcome')
+    
+    return render(request, 'home/confirmed_display.html', context)
+    
 
 

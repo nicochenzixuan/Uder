@@ -72,6 +72,27 @@ class RequestForm(forms.ModelForm):
     class Meta:
         model = Ride
         fields = ['destination', 'arrival_time', 'numberOfPassenger', 'canShare']
-
+        
+class DateTimeInput(forms.DateTimeInput):
+    input_type = 'datetime-local'
     
+class ShareSearchForm(forms.Form):
+    destination = forms.CharField()
+    earliest_time = forms.DateTimeField(
+        input_formats = ['%Y-%m-%dT%H:%M'],
+        widget = DateTimeInput(
+            format='%Y-%m-%dT%H:%M',
+            attrs={'type': 'datetime-local'})
+        )
+
+    latest_time = forms.DateTimeField(
+        input_formats = ['%Y-%m-%dT%H:%M'],
+        widget = DateTimeInput(
+            format='%Y-%m-%dT%H:%M',
+            attrs={'type': 'datetime-local'})
+        )
+    numberOfPassenger = forms.IntegerField()
+
+class DriverSearchForm(forms.Form):
+    vehicle_capacity = forms.IntegerField()
     

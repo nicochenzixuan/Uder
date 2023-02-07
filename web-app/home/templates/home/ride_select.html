@@ -9,11 +9,22 @@
         {% csrf_token %}
         {% for ride in ride_own %}
 	        <small class="text-muted">Request id: {{ ride.id }}// </small>
+          <small class="text-muted">Owner: {{ ride.owner }}// </small>       
 	        <small class="text-muted">{{ ride.destination }} // </small>
-                <small class="text-muted">arrive at {{ ride.arrival_time }} // </small>
-                <small class="text-muted">{{ ride.numberOfPassenger }} Passengers // </small>
-		<small class="text-muted">can share? {{ ride.canShare }} // </small>
-		<small class="text-muted">status is: {{ ride.status }} // </small>
+          <small class="text-muted">arrive at {{ ride.arrival_time }} // </small>
+          <small class="text-muted">{{ ride.numberOfPassenger }} Passengers // </small>
+		      <small class="text-muted">can share? {{ ride.canShare }} // </small>
+		      <small class="text-muted">status is: {{ ride.status }} // </small>
+          {% if ride.status == 'confirmed' %}
+          <br>
+          <small class="text-muted">Driver Name is: {{ ride.driver.username }} // </small>
+          <small class="text-muted">Capacity is: {{ ride.driver.vehicle.capacity }} // </small>
+          <small class="text-muted">Type is: {{ ride.driver.vehicle.car_type }} // </small>
+          <small class="text-muted">PlateNum is: {{ ride.driver.vehicle.license_number }} // </small>
+          <small class="text-muted">Comment is: {{ ride.driver.vehicle.comment }} // </small>
+          
+          
+          {% endif %}
                 <p> if you want to edit this request, click here</p>
 	        <a href="ride_select/edit_request/{{ride.id}}/">Edit Request</a>
 		<br>

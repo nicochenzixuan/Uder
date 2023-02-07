@@ -8,10 +8,18 @@
   <p>Don't want to be a driver any more?</p><a href="{% url 'driverCancel' %}">cancel now</a><br>
   <sub style="text-align: left;"><a href="{% url 'profile' %}" style="text-decoration: none; color: green; padding:2\ 
 %; cursor:pointer; margin-right:2%;">driver profile page</a></sub><br>
+<sub style="text-align: left;"><a href="{% url 'driver_search' %}" style="text-decoration: none; color: purple; padding:2\ 
+									  %; cursor:pointer; margin-right:2%;">driver can search for a ride to confirm</a></sub>
+                                                                                 
+  <sub style="text-align: left;"><a href="{% url 'confirmed_display' %}" style="text-decoration: none; color: purple; padding:2\                                                                                                                   
+                                                                          %; cursor:pointer; margin-right:2%;">driver can view your confirmed requests here and make it complete.</a></sub>
+
   {% else %}
   <h1 style="color: blue;">Driver No</h1>
   <sub style="text-align: left;"><a href="{% url 'driver' %}" style="text-decoration: none; color: blue; padding:2\ 
 								     %; cursor:pointer; margin-right:2%;">become a driver</a></sub>
+                                                                                        
+  
   {% endif %}
   
   
@@ -30,6 +38,8 @@
 
 <sub style="text-align: left;"><a href="{% url 'user_profile' %}" style="text-decoration: none; color: green; padding:2\ 
 %; cursor:pointer; margin-right:2%;">user profile page</a></sub>
+<sub style="text-align: left;"><a href="{% url 'share_search' %}" style="text-decoration: none; color: purple; padding:2\ 
+%; cursor:pointer; margin-right:2%;">search for a share</a></sub>
    
 
 </div>
